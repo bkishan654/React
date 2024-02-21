@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -7,61 +7,92 @@ function App() {
   const [length, setLength] = useState(10)
   const [num, setNum]=useState(false)
   const [chars, setChars]=useState(false)
+  const [string,setString]=useState("")
 
-  const handleChange = (event) => {
-    setLength(event.target.value);
-    let str=generateString(event.target.value);
-    console.log(str);
-    console.log(length,num,chars);
+  // const handleChange = (event) => {
+  //   setLength(event.target.value);
+  //   let str=generateString(event.target.value);
+  //   setString(str);
+  //   // console.log(str);
+  //   // console.log(length,num,chars);
     
-  };
+  // };
 
-const test1 ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-const test2='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-const test3='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@#&()–[{}]:;,?/*\'';
-const test4='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@#&()–[{}]:;,?/*\'0123456789';
+let test ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+// function generateString(length) {
+//     let result = '';
 
-function generateString(length) {
+//     let characters='';
+
+//   if(num)
+//     test+='012345678'
+//   if(chars)
+//     test+='@#&()–[{}]:;,?/*\'';
+
+
+//     characters=test;
+
+//     for ( let i = 0; i < length; i++ ) {
+//         result += characters.charAt(Math.floor(Math.random() * characters.length));
+//     }
+
+//     return result;
+// }
+
+const generateString=useCallback(()=>{
     let result = '';
 
     let characters='';
 
-  if(num && chars)
-  
-    characters= test4;
-  else if(num==true && chars==false)
-    characters= test2;
-  else if(num==false && chars==true)
-    characters= test3;
-  else 
-    characters= test1;
+  if(num)
+    test+='012345678'
+  if(chars)
+    test+='@#&()–[{}]:;,?/*\'';
+
+
+    characters=test;
 
     for ( let i = 0; i < length; i++ ) {
         result += characters.charAt(Math.floor(Math.random() * characters.length));
     }
 
-    return result;
-}
+    setString(result);
+    
+},[length,num,chars,string]);
 
+    useEffect(()=>{
+      generateString(length)
+    },[length,num,chars]);
+
+const passRef=useRef(null);
+
+const copyToClipboard=useCallback(()=>{
+  if(passRef.current)
+    passRef.current.select();
+  window.navigator.clipboard.writeText(string);
+  
+},[string])
 
   return (
     <>
-        <div style={{backgroundColor:'pink'}} className='m-10 p-10 rounded-3xl'>
+        <div  className='m-10 p-10 rounded-3xl bg-gray-800'>
+          <h1 className=' bg-gray-700 m-5 p-5 rounded-xl text-center w-40 align-middle text-orange-500'>password generator</h1>
+          <br />
           <label for="fname" className='text-white'>First name:</label>
-          <input type="text" id="fname" name="fname"></input>
-          <button className='text-white'>copy</button>
+          <input ref={passRef} type="text" id="fname" name="fname" value={string} readOnly className='p-1 rounded-md m-2'></input>
+          <button onClick={copyToClipboard} color="black" className='text-orange-500 bg-gray-700 rounded-lg p-1 m-1 pb-3 hover:bg-gray-500' >copy</button>
           <br />
           
           <label for="number" className='text-white'>Number</label>
-          <input type="checkbox" name="number" id="number" onClick={()=> setNum(!num)}/>
+          <input type="checkbox" name="number" id="number" onChange={() => setNum(!num)}/>
           <br />
           <label for="character" className='text-white'>character</label>
-          <input type="checkbox" name="character" id="character" onClick={()=> setChars(!chars)}/>
+          <input type="checkbox" name="character" id="character" onChange={()=> setChars(!chars)}/>
           <br />
-          <label for="myRange">Length</label>
-          <input type="range" min="1" value={length} max="20"  id="myRange" onChange={handleChange}/><h6>{length}</h6>
+          <label for="myRange" className='text-white'>Length</label>
+          <input type="range" min="6" value={length} max="20"  id="myRange" onChange={(e)=>setLength(e.target.value)}/><h6 className='text-white'>{length}</h6>
           <br />
-          <h6>{generateString(length)}</h6>
+          <h6 className='text-white'>{string}</h6>
 
         </div>
 
